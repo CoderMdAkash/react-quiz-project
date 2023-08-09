@@ -1,9 +1,11 @@
+import { getDatabase, ref, set } from "firebase/database";
 import _ from "lodash";
 import { useEffect, useReducer, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import Answer from "../components/Answer.jsx";
 import MiniPlayer from "../components/MiniPlayer.jsx";
 import ProgressBar from "../components/ProgressBar.jsx";
+import { useAuth } from "../contexts/AuthContext.jsx";
 import useQuestions from "../hok/useQuestions.jsx";
 
 const initialState = null;
@@ -34,6 +36,9 @@ export default function Quiz() {
   const { loading, error, questions } = useQuestions(id);
   // eslint-disable-next-line no-unused-vars
   const [currentQuestions, setCurrentQuestions] = useState(0);
+  const { currentUser } = useAuth();
+
+  const navigate = useNavigate();
 
   // eslint-disable-next-line no-unused-vars
   const [qna, dispatch] = useReducer(reducer, initialState);
@@ -60,7 +65,6 @@ export default function Quiz() {
     }
   }
   function prevQuestion() {
-    console.log(currentQuestions);
     if (currentQuestions >= 1 && currentQuestions < questions.length) {
       setCurrentQuestions((prevCurrent) => prevCurrent - 1);
     }
@@ -70,6 +74,21 @@ export default function Quiz() {
     questions.length > 0
       ? ((currentQuestions + 1) / questions.length) * 100
       : 0;
+
+  async function submit() {
+    const { uid } = currentUser;
+
+    const db = getDatabase();
+    const resultRef = ref(db, `result/${uid}`);
+
+    await set(resultRef, {
+      [id]: qna,
+    });
+
+    navigate(`/result/${id}`, {
+      state: qna,
+    });
+  }
 
   return (
     <>
@@ -89,7 +108,8 @@ export default function Quiz() {
           <ProgressBar
             next={nextQuestion}
             prev={prevQuestion}
-            Progress={percentage}
+            progress={percentage}
+            submit={submit}
           />
           <MiniPlayer />
         </>
