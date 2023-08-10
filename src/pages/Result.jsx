@@ -47,8 +47,11 @@ export default function Result() {
       {!loading && !error && answers && answers.length > 0 && (
         <>
           <Summery score={userScore} noq={answers.length} />
-          <Analysis />
-          <Question />
+          <Analysis
+            noq={answers.length}
+            answer={userScore > 0 ? userScore / 5 : 0}
+          />
+          <Question answers={answers} />
         </>
       )}
     </>

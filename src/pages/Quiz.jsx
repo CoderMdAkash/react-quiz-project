@@ -1,7 +1,7 @@
 import { getDatabase, ref, set } from "firebase/database";
 import _ from "lodash";
 import { useEffect, useReducer, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import Answer from "../components/Answer.jsx";
 import MiniPlayer from "../components/MiniPlayer.jsx";
 import ProgressBar from "../components/ProgressBar.jsx";
@@ -39,6 +39,9 @@ export default function Quiz() {
   const { currentUser } = useAuth();
 
   const navigate = useNavigate();
+
+  const { state } = useLocation();
+  const { videoTitle } = state;
 
   // eslint-disable-next-line no-unused-vars
   const [qna, dispatch] = useReducer(reducer, initialState);
@@ -102,6 +105,7 @@ export default function Quiz() {
           <h1>{qna[currentQuestions].title}</h1>
           <h4>Question can have multiple answers</h4>
           <Answer
+            input={true}
             options={qna[currentQuestions].options}
             handleChange={handleAnswerChange}
           />
@@ -111,7 +115,7 @@ export default function Quiz() {
             progress={percentage}
             submit={submit}
           />
-          <MiniPlayer />
+          <MiniPlayer id={id} title={videoTitle} />
         </>
       )}
     </>
